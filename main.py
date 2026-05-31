@@ -44,7 +44,7 @@ def main():
     print(f"Finished building index in {time.perf_counter() - index_start_time}")
 
     neighbors_start_time = time.perf_counter()
-    results = find_nearest_neighbors(
+    neighbors, n_distances_calculated = find_nearest_neighbors(
         queries=queries[:20],
         n_nearest_neighbors=N_NEAREST_NEIGHBORS,
         n_nearest_centroids=N_NEAREST_CENTROIDS,
@@ -54,6 +54,14 @@ def main():
     )
 
     print(f"Finished finding neighbors {time.perf_counter() - neighbors_start_time}")
+    print(
+        f"Number of distances calculated for the 1st query: {n_distances_calculated[0]}\n"
+    )
+    print(f"Sift dataset size: {len(dataset)}")
+    if len(dataset) == 100000:
+        print("Using Sift Learn")
+    else:
+        print("Using Sift Base")
 
 
 if __name__ == "__main__":
