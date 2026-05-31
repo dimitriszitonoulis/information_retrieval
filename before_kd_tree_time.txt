@@ -1,0 +1,10 @@
+_______________________________________________________
+Using Sift Learn
+Finished finding neighbors 0.015088600000126462
+Number of distances calculated: 4938
+Sift dataset size: 100000
+_______________________________________________________
+Using Sift Base
+Finished finding neighbors 0.0779686000005313
+Number of distances calculated: 51810
+Sift dataset size: 1000000

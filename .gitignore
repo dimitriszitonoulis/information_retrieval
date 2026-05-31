@@ -1,0 +1,14 @@
+# python
+__pycache__
+
+# dataset
+sift/
+
+# project
+tests/
+*_test.py
+
+logs.txt
+
+# personal 
+notes/
