@@ -1,11 +1,14 @@
 import time
 from typing import List
 
+from sklearn.decomposition import PCA
+
 from algorithms.nearest_neighbors import find_nearest_neighbors
 from config import (
     CLUSTER_NUMBER,
     N_NEAREST_CENTROIDS,
     N_NEAREST_NEIGHBORS,
+    PCA_DIMENSIONS,
     SIFT_BASE,
     SIFT_LEARN,
     SIFT_QUERY,
@@ -15,27 +18,26 @@ from utils.clustering import get_cluster_info
 from utils.dataset_loader import read_fvecs
 from utils.inverted_index_utils import build_indexes
 
-# sift_base = read_fvecs(SIFT_BASE)
-# queries = read_fvecs(SIFT_QUERY)
-# sift_gt = read_ivecs(SIFT_GROUNDTRUTH)
-
-PCA_DIMENSIONS = 64
-
 
 def main():
     dataset = read_fvecs(SIFT_LEARN)
     # dataset = read_fvecs(SIFT_BASE)
     queries = read_fvecs(SIFT_QUERY)
 
-    kmeans_start_time = time.time()
+    pca_start_time = time.perf_counter()
+    pca = PCA(n_components=PCA_DIMENSIONS)
+    dataset = pca.fit_transform(dataset)
+    queries = pca.transform(queries)
+    print(f"Finished PCA after {time.perf_counter() - pca_start_time} seconds")
+
+    kmeans_start_time = time.perf_counter()
     centroids, labels = get_cluster_info(
         dataset=dataset,
         n_clusters=CLUSTER_NUMBER,
         n_init="auto",
         max_iter=300,
     )
-
-    print(f"Finished kmeans after {time.time() - kmeans_start_time} seconds")
+    print(f"Finished kmeans after {time.perf_counter() - kmeans_start_time} seconds")
 
     index_start_time = time.perf_counter()
     inverted_indexes: List[InvertedIndex] = build_indexes(
