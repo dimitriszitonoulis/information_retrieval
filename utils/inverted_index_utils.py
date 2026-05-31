@@ -10,10 +10,11 @@ from utils.distance import euclidian_distance
 
 def build_indexes(
     centroids: NDArray[float32],
-    labels: NDArray[np.int32],
+    labels: NDArray[int64],
     n_clusters: int,
     matrix: NDArray[float32],
 ) -> List[InvertedIndex]:
+    # TODO update docs, the inv indexes are not sorted anymore
     """
     Each inverted index corresponds to one cluster and is represented
     by that cluster's centroid. The index contains the indices of the
