@@ -18,7 +18,7 @@ from model.inverted_index import InvertedIndex
 from utils.clustering import get_cluster_info
 from utils.dataset_loader import read_fvecs, read_ivecs
 from utils.evaluation_utils import queries_per_second, recall
-from utils.inverted_index_utils import build_indexes
+from utils.inverted_index_utils import build_inverted_indexes
 
 
 def main():
@@ -43,7 +43,7 @@ def main():
     print(f"Finished kmeans after {time.perf_counter() - kmeans_start_time} seconds")
 
     index_start_time = time.perf_counter()
-    inverted_indexes: List[InvertedIndex] = build_indexes(
+    inverted_indexes: List[InvertedIndex] = build_inverted_indexes(
         centroids, labels, CLUSTER_NUMBER, dataset
     )
     print(f"Finished building index in {time.perf_counter() - index_start_time}")

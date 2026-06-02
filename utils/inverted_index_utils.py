@@ -8,18 +8,16 @@ from model.inverted_index import InvertedIndex
 from utils.distance import euclidian_distance
 
 
-def build_indexes(
+def build_inverted_indexes(
     centroids: NDArray[float32],
     labels: NDArray[int64],
     n_clusters: int,
     matrix: NDArray[float32],
 ) -> List[InvertedIndex]:
-    # TODO update docs, the inv indexes are not sorted anymore
     """
     Each inverted index corresponds to one cluster and is represented
     by that cluster's centroid. The index contains the indices of the
-    vectors in `matrix` that belong to the cluster, sorted in ascending
-    order by their euclidian distance from the centroid.
+    vectors in `matrix` that belong to the cluster.
 
     The i-th element of the inverted index list is the inverted index that
     corresponds to the i-th element of `centroids`
@@ -35,17 +33,17 @@ def build_indexes(
     Returns:
         List[InvertedIndex]: A list of all the inverted indexes.
     """
-    buckets: List[List] = [[] for _ in range(n_clusters)]
+    clusters: List[List] = [[] for _ in range(n_clusters)]
 
-    for idx in range(len(labels)):
-        label = labels[idx]
-        buckets[label].append(idx)
+    for vector_idx in range(len(labels)):
+        cluster_idx = labels[vector_idx]
+        clusters[cluster_idx].append(vector_idx)
 
     inverted_indexes: List[InvertedIndex] = []
 
-    for i in range(n_clusters):
-        centroid = centroids[i]
-        cluster_member_indices = np.array(buckets[i], dtype=int64)
+    for cluster_idx in range(n_clusters):
+        centroid = centroids[cluster_idx]
+        cluster_member_indices = np.array(clusters[cluster_idx], dtype=int64)
 
         inv_ind = InvertedIndex(centroid, cluster_member_indices, matrix)
         inverted_indexes.append(inv_ind)
