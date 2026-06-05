@@ -3,7 +3,7 @@ from typing import List
 
 from sklearn.decomposition import PCA
 
-from algorithms.nearest_neighbors import find_nearest_neighbors
+from algorithms.nearest_neighbors import find_approximate_nearest_neighbors
 from config import (
     CLUSTER_NUMBER,
     N_NEAREST_CENTROIDS,
@@ -49,13 +49,12 @@ def main():
     print(f"Finished building index in {time.perf_counter() - index_start_time}")
 
     ann_start_time = time.perf_counter()
-    neighbors, n_distances_calculated = find_nearest_neighbors(
+    neighbors, n_distances_calculated = find_approximate_nearest_neighbors(
         queries=queries[:20],
         n_nearest_neighbors=N_NEAREST_NEIGHBORS,
         n_nearest_centroids=N_NEAREST_CENTROIDS,
         centroids=centroids,
         inverted_indexes=inverted_indexes,
-        matrix=dataset,
     )
     ann_end_time = time.perf_counter()
 

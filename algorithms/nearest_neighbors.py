@@ -9,14 +9,12 @@ from model.inverted_index import InvertedIndex
 from model.max_heap import MaxHeap
 
 
-def find_nearest_neighbors(
+def find_approximate_nearest_neighbors(
     queries: NDArray[float32],
     n_nearest_neighbors: int,
     n_nearest_centroids: int,
     centroids: NDArray[float32],
     inverted_indexes: List[InvertedIndex],
-    matrix: NDArray[float32],
-    # ) -> Tuple[List[NDArray], List[int]]:
 ) -> Tuple[NDArray[int64], NDArray[int64]]:
     """
     Finds the elements that are the closest to the query.
@@ -46,7 +44,7 @@ def find_nearest_neighbors(
     knn = NearestNeighbors(n_neighbors=n_nearest_centroids)
     knn.fit(centroids)
 
-    nearest_neighbors = np.empty((n_queries, n_nearest_neighbors), dtype=int64)
+    nearest_neighbors_indices = np.empty((n_queries, n_nearest_neighbors), dtype=int64)
     n_dist_per_query = np.empty((n_queries), dtype=int64)
 
     for q_idx in range(n_queries):
@@ -58,26 +56,24 @@ def find_nearest_neighbors(
         )
         neighboring_centroids_indices = neighboring_centroids_indices[0]
 
-        neighbors, n_distances_calculated_ = _find_nearest_neighbors(
+        neighbors, n_distances_calculated_ = _find_approximate_nearest_neighbors(
             query_vector=query_vector,
             n_nearest_neighbors=n_nearest_neighbors,
             neighboring_centroids_indices=neighboring_centroids_indices,
             inverted_indexes=inverted_indexes,
-            matrix=matrix,
         )
 
-        nearest_neighbors[q_idx] = neighbors
+        nearest_neighbors_indices[q_idx] = neighbors
         n_dist_per_query[q_idx] = n_distances_calculated_
 
-    return nearest_neighbors, n_dist_per_query
+    return nearest_neighbors_indices, n_dist_per_query
 
 
-def _find_nearest_neighbors(
+def _find_approximate_nearest_neighbors(
     query_vector: NDArray[float32],
     n_nearest_neighbors: int,
     neighboring_centroids_indices: NDArray[float32],
     inverted_indexes: List[InvertedIndex],
-    matrix: NDArray[float32],
 ) -> Tuple:
     n_distances_calculated: int = 0
     neighbors: MaxHeap = MaxHeap()
@@ -112,7 +108,6 @@ def _add_vectors_to_heap(
     distances: NDArray[float32],
     vec_heap: MaxHeap,
     n_nearest_neighbors: int,
-    # matrix: NDArray[float32],
 ):
     """
     Adds the vectors with the least distance from the query to `vec_heap`.
