@@ -1,4 +1,4 @@
-from typing import List, Literal, Tuple
+from typing import Literal, Tuple
 
 from numpy import float32, int64
 import numpy as np
