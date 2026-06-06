@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, cast
 
 from numpy import float32, int64
 import numpy as np
@@ -7,6 +7,34 @@ from sklearn.neighbors import NearestNeighbors
 
 from model.inverted_index import InvertedIndex
 from model.max_heap import MaxHeap
+
+
+def find_precise_nearest_neighbors(
+    queries: NDArray[float32], n_nearest_neighbors: int, dataset: NDArray[float32]
+) -> NDArray[int64]:
+    """
+    Finds the nearest neighbors to queries and returns their indices.
+
+    Args:
+        queries (NDArray[float32]): 2D array containing queries.
+        n_nearest_neighbors (int): The number of nearest neighbors
+            to search for each query.
+        dataset (NDArray[float32]): The dataset used to find the
+            nearest neighbors.
+
+    Returns:
+        NDarray[int64]: 2D array of shape (n_queries, n_nearest_neigbors)
+            containing the indices of the nearest neighbors to `queries`.
+    """
+
+    knn = NearestNeighbors(
+        n_neighbors=n_nearest_neighbors, algorithm="brute", metric="euclidean"
+    )
+    knn.fit(dataset)
+
+    nearest_neighbors_indices = knn.kneighbors(queries, return_distance=False)
+
+    return cast(NDArray[int64], nearest_neighbors_indices)
 
 
 def find_approximate_nearest_neighbors(
