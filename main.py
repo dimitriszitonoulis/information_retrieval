@@ -3,7 +3,6 @@ from typing import List
 
 from numpy import float32, int64
 from numpy.typing import NDArray
-from sklearn.decomposition import PCA
 
 from algorithms.nearest_neighbors import (
     find_approximate_nearest_neighbors,
@@ -13,10 +12,8 @@ from config import (
     CLUSTER_NUMBER,
     N_NEAREST_CENTROIDS,
     N_NEAREST_NEIGHBORS,
-    PCA_DIMENSIONS,
     SIFT_BASE,
     SIFT_GROUNDTRUTH,
-    SIFT_LEARN,
     SIFT_QUERY,
 )
 from model.inverted_index import InvertedIndex
@@ -120,17 +117,9 @@ def approximate_nn(
 
 
 def main():
-    # dataset = read_fvecs(SIFT_LEARN)
     dataset = read_fvecs(SIFT_BASE)
     queries = read_fvecs(SIFT_QUERY)
-
     groundtruth = read_ivecs(SIFT_GROUNDTRUTH)
-
-    pca_start_time = time.perf_counter()
-    pca = PCA(n_components=PCA_DIMENSIONS)
-    dataset = pca.fit_transform(dataset)
-    queries = pca.transform(queries)
-    print(f"Finished PCA after {time.perf_counter() - pca_start_time} seconds")
 
     precise_nn(dataset, queries, groundtruth)
 

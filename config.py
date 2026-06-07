@@ -6,4 +6,3 @@ SIFT_QUERY = "sift/sift_query.fvecs"
 CLUSTER_NUMBER = 100
 N_NEAREST_CENTROIDS = 5  # number of the nearest centroids to the query
 N_NEAREST_NEIGHBORS = 100  # number of nearest neighbors to search for the query
-PCA_DIMENSIONS = 16
