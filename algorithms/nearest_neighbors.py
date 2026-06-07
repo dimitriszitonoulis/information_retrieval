@@ -43,6 +43,7 @@ def find_approximate_nearest_neighbors(
     n_nearest_centroids: int,
     centroids: NDArray[float32],
     inverted_indexes: List[InvertedIndex],
+    dataset: NDArray[float32],
 ) -> Tuple[NDArray[int64], NDArray[int64]]:
     """
     Finds the elements that are the closest to the query.
@@ -89,6 +90,7 @@ def find_approximate_nearest_neighbors(
             n_nearest_neighbors=n_nearest_neighbors,
             neighboring_centroids_indices=neighboring_centroids_indices,
             inverted_indexes=inverted_indexes,
+            dataset=dataset,
         )
 
         nearest_neighbors_indices[q_idx] = neighbors
@@ -102,6 +104,7 @@ def _find_approximate_nearest_neighbors(
     n_nearest_neighbors: int,
     neighboring_centroids_indices: NDArray[float32],
     inverted_indexes: List[InvertedIndex],
+    dataset: NDArray[float32],
 ) -> Tuple:
     n_distances_calculated: int = 0
     neighbors: MaxHeap = MaxHeap()
@@ -109,24 +112,21 @@ def _find_approximate_nearest_neighbors(
     for centroid_idx in neighboring_centroids_indices:
         inverted_index: InvertedIndex = inverted_indexes[centroid_idx]
 
-        candidate_distances, nearest_members_indices = (
-            inverted_index.get_nearest_members_indices(
-                query_vector=query_vector.reshape(1, -1),
-                n_nearest_neighbors=n_nearest_neighbors,
-            )
+        members_indices: NDArray[int64] = inverted_index.cluster_member_indices
+        members: NDArray[float32] = dataset[members_indices]
+        candidate_distances: NDArray[float32] = np.linalg.norm(
+            members - query_vector, axis=1
         )
-        # unpack arrays
-        candidate_distances: NDArray[float32] = candidate_distances[0]
-        nearest_members_indices: NDArray[int64] = nearest_members_indices[0]
 
+        n_distances_calculated += members_indices.shape[0]
+
+        # add to heap
         _add_vectors_to_heap(
-            vectors=nearest_members_indices,
+            vectors=members_indices,
             distances=candidate_distances,
             vec_heap=neighbors,
             n_nearest_neighbors=n_nearest_neighbors,
         )
-
-        n_distances_calculated += inverted_index.get_distances_calculated()
 
     return neighbors.get_all_values(), n_distances_calculated
 
@@ -154,6 +154,10 @@ def _add_vectors_to_heap(
             that the heap should have.
     """
 
+    # print(vectors)
+    # print(f"{vectors.shape=}")
+
+    # TODO remove else, use continue
     for i in range(vectors.shape[0]):
         vec_idx = vectors[i]
         distance = distances[i]

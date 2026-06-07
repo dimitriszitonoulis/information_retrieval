@@ -101,6 +101,7 @@ def approximate_nn(
         n_nearest_centroids=N_NEAREST_CENTROIDS,
         centroids=centroids,
         inverted_indexes=inverted_indexes,
+        dataset=dataset,
     )
     ann_end_time = time.perf_counter()
 
