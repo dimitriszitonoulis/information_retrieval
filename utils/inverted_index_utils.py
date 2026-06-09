@@ -11,7 +11,6 @@ def build_inverted_indexes(
     centroids: NDArray[float32],
     labels: NDArray[int64],
     n_clusters: int,
-    matrix: NDArray[float32],
 ) -> List[InvertedIndex]:
     """
     Each inverted index corresponds to one cluster and is represented
@@ -44,7 +43,7 @@ def build_inverted_indexes(
         centroid = centroids[cluster_idx]
         cluster_member_indices = np.array(clusters[cluster_idx], dtype=int64)
 
-        inv_ind = InvertedIndex(centroid, cluster_member_indices, matrix)
+        inv_ind = InvertedIndex(centroid, cluster_member_indices)
         inverted_indexes.append(inv_ind)
 
     return inverted_indexes
