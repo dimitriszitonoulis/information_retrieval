@@ -1,5 +1,7 @@
+from pathlib import Path
 from typing import Literal, Tuple
 
+import joblib
 from numpy import float32, int64
 import numpy as np
 from numpy.typing import NDArray
@@ -7,6 +9,7 @@ from sklearn.cluster import KMeans
 
 
 def get_cluster_info(
+    path: str,
     dataset: NDArray[np.float32],
     n_clusters: int,
     max_iter: int,
@@ -47,7 +50,25 @@ def get_cluster_info(
 
     # get array like (n_samples)
     # each element is the index of the cluster the instance belongs to
-    labels: NDArray = model.fit_predict(dataset)
-    centroids: NDArray = model.cluster_centers_
+    # labels: NDArray = model.fit_predict(dataset)
+    # centroids: NDArray = model.cluster_centers_
+
+    model_path = Path(path)
+
+    if model_path.exists():
+        model: KMeans = joblib.load(model_path)
+        labels = model.predict(dataset)
+    else:
+        model = KMeans(
+            n_clusters=n_clusters,
+            n_init=n_init,  # pyright: ignore
+            max_iter=max_iter,
+            random_state=random_state,
+        )
+        labels = model.fit_predict(dataset)
+        joblib.dump(model, model_path)
+
+    # return centroids, labels
+    centroids: NDArray[float32] = model.cluster_centers_
 
     return centroids, labels
