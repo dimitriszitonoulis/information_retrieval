@@ -2,14 +2,16 @@ import time
 from typing import List
 
 from numpy import float32, int64
+import numpy as np
 from numpy.typing import NDArray
 
 from algorithms.nearest_neighbors import (
-    find_approximate_nearest_neighbors,
-    find_precise_nearest_neighbors,
+    find_approximate_nn,
+    find_precise_nn,
 )
 from config import (
     CLUSTER_NUMBER,
+    CLUSTERER_PATH,
     N_NEAREST_CENTROIDS,
     N_NEAREST_NEIGHBORS,
     SIFT_BASE,
@@ -47,10 +49,14 @@ def precise_nn(
     dataset: NDArray[float32], queries: NDArray[float32], groundtruth: NDArray[int64]
 ):
     start_time = time.perf_counter()
-    n_distances_calculated = queries.shape[0] * dataset.shape[0]
+    # n_distances_calculated = queries.shape[0] * dataset.shape[0]
+    vector_indices: NDArray[int64] = np.arange(0, dataset.shape[0], 1, dtype=int64)
 
-    neighbors = find_precise_nearest_neighbors(
-        queries=queries, n_nearest_neighbors=N_NEAREST_NEIGHBORS, dataset=dataset
+    neighbors, n_distances_calculated = find_precise_nn(
+        queries,
+        N_NEAREST_NEIGHBORS,
+        vector_indices,
+        dataset,
     )
 
     end_time = time.perf_counter()
@@ -65,7 +71,7 @@ def precise_nn(
 
     print_info(
         total_time=total_time,
-        n_distances_calculated=n_distances_calculated,
+        n_distances_calculated=sum(n_distances_calculated),
         rec=rec,
         qps=qps,
         dataset_len=dataset.shape[0],
@@ -78,6 +84,7 @@ def approximate_nn(
 
     kmeans_start_time = time.perf_counter()
     centroids, labels = get_cluster_info(
+        path=CLUSTERER_PATH,
         dataset=dataset,
         n_clusters=CLUSTER_NUMBER,
         n_init="auto",
@@ -87,12 +94,12 @@ def approximate_nn(
 
     index_start_time = time.perf_counter()
     inverted_indexes: List[InvertedIndex] = build_inverted_indexes(
-        centroids, labels, CLUSTER_NUMBER, dataset
+        centroids, labels, CLUSTER_NUMBER
     )
     print(f"Finished building index in {time.perf_counter() - index_start_time}")
 
     ann_start_time = time.perf_counter()
-    neighbors, n_distances_calculated = find_approximate_nearest_neighbors(
+    neighbors, n_distances_calculated = find_approximate_nn(
         queries=queries,
         n_nearest_neighbors=N_NEAREST_NEIGHBORS,
         n_nearest_centroids=N_NEAREST_CENTROIDS,
