@@ -31,18 +31,14 @@ def print_info(
     n_distances_calculated: int,
     rec: float,
     qps: float,
-    dataset_len: int,
 ):
-    if dataset_len == 100000:
-        print("Using Sift Learn")
-    else:
-        print("Using Sift Base")
+    print(f"{'Recall: ':<40} {rec:>15.4f}")
+    print(f"{'Queries per second:':<40} {qps:>15.4f} qps")
 
-    print(f"Recall: {rec}")
-    print(f"Queries per second: {qps}")
-
-    print(f"Finished finding neighbors in: {total_time} sec")
-    print(f"Number of distances calculated: {n_distances_calculated}\n")
+    print(f"{'Finished finding neighbors in:':<40} {total_time:>15.4f} sec")
+    print(
+        f"{'Number of distances calculated:':<40} {n_distances_calculated:>15} distances\n"
+    )
 
 
 def precise_nn(
@@ -69,12 +65,13 @@ def precise_nn(
     )
     qps = queries_per_second(n_queries=queries.shape[0], total_time=total_time)
 
+    print("##################################################################")
+    print(f"{'Precise NN':^64}")
     print_info(
         total_time=total_time,
         n_distances_calculated=sum(n_distances_calculated),
         rec=rec,
         qps=qps,
-        dataset_len=dataset.shape[0],
     )
 
 
@@ -90,13 +87,23 @@ def approximate_nn(
         n_init="auto",
         max_iter=300,
     )
-    print(f"Finished kmeans after {time.perf_counter() - kmeans_start_time} seconds")
+    kmeans_end_time = time.perf_counter()
+
+    print("##################################################################")
+    print(f"{'Approximate NN':^64}")
+
+    print(
+        f"{'Finished kmeans after:':<40} {(kmeans_end_time - kmeans_start_time):>15.4f} sec"
+    )
 
     index_start_time = time.perf_counter()
     inverted_indexes: List[InvertedIndex] = build_inverted_indexes(
         centroids, labels, CLUSTER_NUMBER
     )
-    print(f"Finished building index in {time.perf_counter() - index_start_time}")
+    index_end_time = time.perf_counter()
+    print(
+        f"{'Finished building index in:':<40} {(index_end_time - index_start_time):>15.4f} sec"
+    )
 
     ann_start_time = time.perf_counter()
     neighbors, n_distances_calculated = find_approximate_nn(
@@ -119,7 +126,6 @@ def approximate_nn(
         n_distances_calculated=sum(n_distances_calculated),
         rec=rec,
         qps=qps,
-        dataset_len=dataset.shape[0],
     )
 
 
@@ -127,6 +133,11 @@ def main():
     dataset = read_fvecs(SIFT_BASE)
     queries = read_fvecs(SIFT_QUERY)
     groundtruth = read_ivecs(SIFT_GROUNDTRUTH)
+
+    n_test = 1000
+
+    queries = queries[:n_test]
+    groundtruth = groundtruth[:n_test]
 
     precise_nn(dataset, queries, groundtruth)
 
