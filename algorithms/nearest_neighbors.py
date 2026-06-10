@@ -155,8 +155,8 @@ def _find_nn(
         Tuple[NDArray[int64], int]:
         - 1D array containg the indices (to `dataset`)
         of the nearest neighbors.
-        - The number of distances calculated in order to find
-        the nearest neighbors.
+        - 1D array containing the number of distances calculated
+        in order to find the nearest neighbors.
     """
 
     vectors: NDArray[float32] = dataset[vector_indices]
