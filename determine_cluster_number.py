@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-from numpy import typing as nptyping
-from sklearn.cluster import KMeans, MiniBatchKMeans
-from sklearn.decomposition import PCA
+from sklearn.cluster import MiniBatchKMeans
 from sklearn.metrics import silhouette_score
+
+from config import SIFT_LEARN
 
 from utils.dataset_loader import read_fvecs
 
@@ -33,27 +33,10 @@ def get_silhouette_score(matrix, max_k=10):
     return scores, best_score, best_k
 
 
-def elbow_score(matrix: nptyping.NDArray, max_k: int):
-    inertias = []
-
-    for k in range(2, max_k + 1):
-        # kmeans = KMeans(n_clusters=k, random_state=42, n_init=1, max_iter=5)
-        kmeans = KMeans(n_clusters=k, random_state=42, n_init=1)
-        kmeans.fit(matrix)
-
-        inertias.append(kmeans.inertia_)
-
-    return inertias
-
-
-SIFT_LEARN = "sift/sift_learn.fvecs"
-max_k = 100
-n_components = 32
+max_k = 1000
 matrix = read_fvecs(SIFT_LEARN)
-matrix_pca = PCA(n_components=n_components).fit_transform(matrix)
 
-
-scores, best_score, best_k = get_silhouette_score(matrix_pca, max_k)
+scores, best_score, best_k = get_silhouette_score(matrix, max_k)
 
 print(f"{best_score=}, {best_k=}")
 
