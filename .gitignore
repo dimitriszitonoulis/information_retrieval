@@ -11,7 +11,7 @@ sift/
 # project
 tests/
 *_test.py
-clusterer_model/*
+clusterer_model/
 !clusterer_model/.gitkeep
 
 
