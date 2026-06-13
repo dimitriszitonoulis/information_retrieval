@@ -6,6 +6,7 @@ ruff.toml
 
 # dataset
 sift/
+!sift/.gitkeep
 
 # project
 tests/
