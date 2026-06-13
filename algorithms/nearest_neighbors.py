@@ -11,7 +11,6 @@ from model.inverted_index import InvertedIndex
 def find_precise_nn(
     queries: NDArray[float32],
     n_nearest_neighbors: int,
-    vector_indices: NDArray[int64],
     dataset: NDArray[float32],
 ) -> Tuple[NDArray[int64], NDArray[int64]]:
     """
@@ -22,9 +21,6 @@ def find_precise_nn(
         queries (NDArray[float32]): 2D array containing query vectors.
         n_nearest_neighbors (int): The number of nearest neighbors
             to search for each query.
-        vector_indices (NDArray[int64]): The indices of the vectors
-            of the dataset. The algorithm searches these vectors
-            to find the nearest neighbors for each query.
         dataset (NDArray[float32]): The dataset used to find the
             nearest neighbors.
 
@@ -32,13 +28,14 @@ def find_precise_nn(
         Tuple[NDArray[int64], NDArray[int64]]:
             - 2D array of shape (n_queries, n_nearest_neigbors)
             containing the indices of the nearest neighbors to `queries`.
-            - 2D array of shape (n_nearest_neighbors) containing the number
+            - 1D array of shape (n_nearest_neighbors) containing the number
             of distances used to find the i-th neighbor.
     """
 
     n_queries = queries.shape[0]
     nearest_neighbors_indices = np.empty((n_queries, n_nearest_neighbors), dtype=int64)
     n_dist_per_query = np.empty((n_queries), dtype=int64)
+    vector_indices: NDArray[int64] = np.arange(0, dataset.shape[0], 1, dtype=int64)
 
     for q_idx in range(n_queries):
         q_vector = queries[q_idx]
@@ -70,7 +67,6 @@ def find_approximate_nn(
     closest to the query and checking their cluster members
     for the nearest neighbors.
 
-
     Args:
         queries (NDArray[float32]): An array containing
             queries for which to find nearest neighbors.
@@ -89,7 +85,7 @@ def find_approximate_nn(
         Tuple[NDArray[int64], NDArray[int64]]:
             - 2D array of shape (n_queries, n_nearest_neigbors)
             containing the indices of the nearest neighbors to `queries`.
-            - 2D array of shape (n_nearest_neighbors) containing the number
+            - 1D array of shape (n_nearest_neighbors) containing the number
             of distances used to find the i-th neighbor.
     """
 
@@ -153,9 +149,9 @@ def _find_nn(
 
     Returns:
         Tuple[NDArray[int64], int]:
-        - 1D array containg the indices (to `dataset`)
+        - 1D array containing the indices (to `dataset`)
         of the nearest neighbors.
-        - 1D array containing the number of distances calculated
+        - the number of distances calculated
         in order to find the nearest neighbors.
     """
 

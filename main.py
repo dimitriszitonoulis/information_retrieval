@@ -1,8 +1,8 @@
 import time
 from typing import List
 
-from numpy import float32, int64
 import numpy as np
+from numpy import float32, int64
 from numpy.typing import NDArray
 
 from algorithms.nearest_neighbors import (
@@ -18,7 +18,6 @@ from config import (
     SIFT_GROUNDTRUTH,
     SIFT_QUERY,
 )
-from model.inverted_index import InvertedIndex
 from model.inverted_index import InvertedIndex
 from utils.clustering import get_cluster_info
 from utils.dataset_loader import read_fvecs, read_ivecs
@@ -45,13 +44,10 @@ def precise_nn(
     dataset: NDArray[float32], queries: NDArray[float32], groundtruth: NDArray[int64]
 ):
     start_time = time.perf_counter()
-    # n_distances_calculated = queries.shape[0] * dataset.shape[0]
-    vector_indices: NDArray[int64] = np.arange(0, dataset.shape[0], 1, dtype=int64)
 
     neighbors, n_distances_calculated = find_precise_nn(
         queries,
         N_NEAREST_NEIGHBORS,
-        vector_indices,
         dataset,
     )
 
@@ -134,12 +130,12 @@ def main():
     queries = read_fvecs(SIFT_QUERY)
     groundtruth = read_ivecs(SIFT_GROUNDTRUTH)
 
-    n_test = 1000
+    subset_size = 100
+    test_indices = np.random.randint(0, queries.shape[0] - 1, size=subset_size)
+    queries = queries[test_indices]
+    groundtruth = groundtruth[test_indices]
 
-    queries = queries[:n_test]
-    groundtruth = groundtruth[:n_test]
-
-    precise_nn(dataset, queries, groundtruth)
+    # precise_nn(dataset, queries, groundtruth)
 
     approximate_nn(dataset, queries, groundtruth)
 
