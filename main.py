@@ -130,12 +130,12 @@ def main():
     queries = read_fvecs(SIFT_QUERY)
     groundtruth = read_ivecs(SIFT_GROUNDTRUTH)
 
-    subset_size = 100
+    subset_size = 1000
     test_indices = np.random.randint(0, queries.shape[0] - 1, size=subset_size)
     queries = queries[test_indices]
     groundtruth = groundtruth[test_indices]
 
-    # precise_nn(dataset, queries, groundtruth)
+    precise_nn(dataset, queries, groundtruth)
 
     approximate_nn(dataset, queries, groundtruth)
 
